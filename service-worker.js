@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.b2905881f29b171968c549b6d2be1c9e.js"
+  "/precache-manifest.dfd8ccca5375e9fd71989edc61c94dc5.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "jumangitjs-github-pages"});
