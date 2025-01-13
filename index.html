@@ -5,10 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
     <script>
-        // Set the delay in seconds (modify 5000 to change the delay)
-        setTimeout(() => {
-            window.location.href = "https://url.com";
-        }, 5000);
+        // Set the redirect URL and delay time in seconds
+        const redirectUrl = "https://url.com";
+        const delay = 5;
+
+        // Function to handle the countdown and redirection
+        function startRedirect() {
+            let counter = delay;
+            const countdownElement = document.getElementById("countdown");
+
+            // Update the countdown every second
+            const interval = setInterval(() => {
+                counter--;
+                countdownElement.textContent = counter;
+
+                if (counter <= 0) {
+                    clearInterval(interval);
+                    window.location.href = redirectUrl; // Redirect to the URL
+                }
+            }, 1000);
+        }
+
+        window.onload = startRedirect;
     </script>
     <style>
         body {
@@ -25,12 +43,23 @@
             color: #333;
             font-size: 1.2em;
         }
+        .redirect-link {
+            margin-top: 20px;
+            font-size: 1em;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .redirect-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="message">
         <p>I got lazy and I will just redirect you to here...</p>
         <p>Also, this is work in progress.</p>
+        <p>Redirecting in <span id="countdown">5</span> seconds...</p>
+        <a href="https://url.com" class="redirect-link">Just redirect me, please.</a>
     </div>
 </body>
 </html>
