@@ -7,13 +7,14 @@
     <script>
         // Set the redirect URL and delay time in seconds
         const redirectUrl = "https://evolving-fly-fluent.ngrok-free.app";
-        const delay = 5;
+        const delay = 20; // in seconds
 
         // Function to handle the countdown and redirection
         function startRedirect() {
             let counter = delay;
             const countdownElement = document.getElementById("countdown");
             const redirectLink = document.getElementById("redirect-link");
+            const surpriseNotificationElement = document.getElementById("surprise-notificaion");
 
             // Set the href for the manual redirect link
             redirectLink.href = redirectUrl;
@@ -22,6 +23,11 @@
             const interval = setInterval(() => {
                 counter--;
                 countdownElement.textContent = counter;
+
+                const last10Seconds = counter < 10;
+                if (last10Seconds) {
+                  surpriseNotificationElement.textContent = 'also i may need your google login for auth purposes because again. im lazy. thank you ngrok.';
+                }
 
                 if (counter <= 0) {
                     clearInterval(interval);
@@ -63,7 +69,8 @@
         <p>I got lazy and I will just redirect you to here...</p>
         <p>Also, this is work in progress.</p>
         <p>wow. cool. llm wrapper. so cool.....</p>
-        <p>Redirecting in <span id="countdown">5</span> seconds...</p>
+        <p id="surprise-notificaion">...</p>
+        <p>Redirecting in <span id="countdown"></span> seconds...</p>
         <a id="redirect-link" class="redirect-link">Just redirect me, please.</a>
     </div>
 </body>
