@@ -13,8 +13,12 @@
         function startRedirect() {
             let counter = delay;
             const countdownElement = document.getElementById("countdown");
+            const redirectLink = document.getElementById("redirect-link");
 
-            // Update the countdown every second
+            // Set the href for the manual redirect link
+            redirectLink.href = redirectUrl;
+
+            // Update the countdown every secondß
             const interval = setInterval(() => {
                 counter--;
                 countdownElement.textContent = counter;
@@ -58,8 +62,9 @@
     <div class="message">
         <p>I got lazy and I will just redirect you to here...</p>
         <p>Also, this is work in progress.</p>
+        <p>wow. cool. llm wrapper. so cool.....</p>
         <p>Redirecting in <span id="countdown">5</span> seconds...</p>
-        <a href="https://url.com" class="redirect-link">Just redirect me, please.</a>
+        <a id="redirect-link" class="redirect-link">Just redirect me, please.</a>
     </div>
 </body>
 </html>
