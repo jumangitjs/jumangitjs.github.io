@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sleep & Cycle Calculator</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent-color: #38bdf8;
+      --accent-subtle: #818cf8;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --error-color: #f87171;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .calculator-card {
+      background-color: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-width: 460px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      color: var(--accent-color);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      color: var(--text-sub);
+      margin-bottom: 0.5rem;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background-color: #0f172a;
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input:focus {
+      border-color: var(--accent-color);
+    }
+
+    .dual-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .error-text {
+      color: var(--error-color);
+      font-size: 0.75rem;
+      margin-top: 0.35rem;
+      display: none;
+    }
+
+    .results-container {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid #334155;
+    }
+
+    .result-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      font-size: 0.925rem;
+    }
+
+    .result-label {
+      color: var(--text-sub);
+    }
+
+    .result-value {
+      color: var(--accent-color);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .result-value.subtle {
+      color: var(--accent-subtle);
+    }
+
+    .note {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-top: 1.25rem;
+      text-align: center;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator-card">
+    <h1>Sleep Calculator</h1>
+    
+    <div class="form-group">
+      <label for="calc-mode">Calculate based on:</label>
+      <select id="calc-mode">
+        <option value="wakeup" selected>Wake Up Time</option>
+        <option value="bedtime">Sleep Time</option>
+        <option value="hours">Hours of Sleep</option>
+      </select>
+    </div>
+
+    <!-- Single Input Container (Used for Wake Up / Bedtime Modes) -->
+    <div id="single-input-container" class="form-group">
+      <label id="input-label" for="time-input">Target Time</label>
+      <input type="time" id="time-input" />
+    </div>
+
+    <!-- Multi Input Container (Used for "Hours of Sleep" Mode) -->
+    <div id="hours-mode-container" class="form-group" style="display: none;">
+      <div class="form-group">
+        <label for="hours-input">Hours of Sleep</label>
+        <input type="number" id="hours-input" placeholder="e.g. 7.5" step="0.25" min="0.5" max="24" value="7.5" />
+      </div>
+      <div class="dual-inputs">
+        <div>
+          <label for="bedtime-input">Bedtime</label>
+          <input type="time" id="bedtime-input" value="23:00" />
+        </div>
+        <div>
+          <label for="wakeup-input">Wake Up Time</label>
+          <input type="time" id="wakeup-input" value="06:45" />
+        </div>
+      </div>
+    </div>
+
+    <div id="error-message" class="error-text">Please provide a valid entry.</div>
+
+    <div class="results-container">
+      <div class="result-box">
+        <span class="result-label">Sleep Time:</span>
+        <span id="sleep-time-output" class="result-value">--</span>
+      </div>
+      <div class="result-box">
+        <span class="result-label">Wake Up Time:</span>
+        <span id="wakeup-time-output" class="result-value">--</span>
+      </div>
+      <div class="result-box">
+        <span class="result-label">Total Duration & Cycles:</span>
+        <span id="duration-cycles-output" class="result-value">--</span>
+      </div>
+      <div class="result-box">
+        <span class="result-label">Ideal Schedule (5 Cycles):</span>
+        <span id="ideal-output" class="result-value subtle">--</span>
+      </div>
+      <div class="result-box">
+        <span class="result-label">Min Schedule (4 Cycles):</span>
+        <span id="lower-output" class="result-value subtle">--</span>
+      </div>
+    </div>
+
+    <p class="note">Includes 15 minutes to fall asleep and standard 90-minute REM sleep cycles.</p>
+  </div>
+
+  <script>
+    // DOM Elements
+    const calcModeSelect = document.getElementById('calc-mode');
+    
+    // Inputs
+    const singleContainer = document.getElementById('single-input-container');
+    const hoursContainer = document.getElementById('hours-mode-container');
+    const inputLabel = document.getElementById('input-label');
+    
+    const timeInput = document.getElementById('time-input');
+    const hoursInput = document.getElementById('hours-input');
+    const bedtimeInput = document.getElementById('bedtime-input');
+    const wakeupInput = document.getElementById('wakeup-input');
+    
+    const errorMessage = document.getElementById('error-message');
+
+    // Outputs
+    const sleepTimeOutput = document.getElementById('sleep-time-output');
+    const wakeupTimeOutput = document.getElementById('wakeup-time-output');
+    const durationCyclesOutput = document.getElementById('duration-cycles-output');
+    const idealOutput = document.getElementById('ideal-output');
+    const lowerOutput = document.getElementById('lower-output');
+
+    const FALL_ASLEEP_MINS = 15;
+    const CYCLE_MINS = 90;
+
+    // Convert Date object to 12-hour AM/PM string
+    function formatAMPM(date) {
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      return `${hours}:${minutes} ${ampm}`;
+    }
+
+    // Convert Date object to HH:MM format for <input type="time">
+    function formatHHMM(date) {
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      hours = hours < 10 ? '0' + hours : hours;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      return `${hours}:${minutes}`;
+    }
+
+    function addMinutes(date, minutes) {
+      return new Date(date.getTime() + minutes * 60000);
+    }
+
+    // Handle switching between calculation modes
+    function handleModeChange() {
+      const mode = calcModeSelect.value;
+      
+      if (mode === 'hours') {
+        singleContainer.style.display = 'none';
+        hoursContainer.style.display = 'block';
+        updateFromHours(); // Sync initially
+      } else {
+        singleContainer.style.display = 'block';
+        hoursContainer.style.display = 'none';
+        inputLabel.textContent = mode === 'wakeup' ? 'Target Wake Up Time' : 'Sleep Time (Bedtime)';
+        
+        if (!timeInput.value) {
+          timeInput.value = mode === 'wakeup' ? '07:00' : '23:00';
+        }
+        calculateSleep();
+      }
+    }
+
+    // Validation
+    function validateInputs() {
+      const mode = calcModeSelect.value;
+
+      if (mode === 'hours') {
+        const hrs = parseFloat(hoursInput.value);
+        if (isNaN(hrs) || hrs <= 0 || hrs > 24) {
+          showError('Enter hours between 0.5 and 24.');
+          return false;
+        }
+        if (!bedtimeInput.value || !wakeupInput.value) {
+          showError('Please set valid times.');
+          return false;
+        }
+      } else {
+        if (!timeInput.value) {
+          showError('Please enter a time.');
+          return false;
+        }
+      }
+
+      hideError();
+      return true;
+    }
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.style.display = 'block';
+      sleepTimeOutput.textContent = '--';
+      wakeupTimeOutput.textContent = '--';
+      durationCyclesOutput.textContent = '--';
+      idealOutput.textContent = '--';
+      lowerOutput.textContent = '--';
+    }
+
+    function hideError() {
+      errorMessage.style.display = 'none';
+    }
+
+    // --- Dynamic Time Recalculations for "Hours of Sleep" Mode ---
+
+    // 1. When Hours change -> recalculate Wake Up time based on Bedtime
+    function updateFromHours() {
+      const hrs = parseFloat(hoursInput.value);
+      if (isNaN(hrs) || !bedtimeInput.value) return;
+
+      const [h, m] = bedtimeInput.value.split(':').map(Number);
+      const bedDate = new Date();
+      bedDate.setHours(h, m, 0, 0);
+
+      const totalMins = hrs * 60 + FALL_ASLEEP_MINS;
+      const wakeDate = addMinutes(bedDate, totalMins);
+
+      wakeupInput.value = formatHHMM(wakeDate);
+      calculateSleep();
+    }
+
+    // 2. When Bedtime changes -> recalculate Wake Up time based on Hours
+    function updateFromBedtime() {
+      const hrs = parseFloat(hoursInput.value);
+      if (isNaN(hrs) || !bedtimeInput.value) return;
+
+      const [h, m] = bedtimeInput.value.split(':').map(Number);
+      const bedDate = new Date();
+      bedDate.setHours(h, m, 0, 0);
+
+      const totalMins = hrs * 60 + FALL_ASLEEP_MINS;
+      const wakeDate = addMinutes(bedDate, totalMins);
+
+      wakeupInput.value = formatHHMM(wakeDate);
+      calculateSleep();
+    }
+
+    // 3. When Wake Up time changes -> recalculate Bedtime based on Hours of Sleep (Keeping Hours Fixed)
+    function updateFromWakeup() {
+      const hrs = parseFloat(hoursInput.value);
+      if (isNaN(hrs) || !wakeupInput.value) return;
+
+      const [wh, wm] = wakeupInput.value.split(':').map(Number);
+      const wakeDate = new Date();
+      wakeDate.setHours(wh, wm, 0, 0);
+
+      // Subtract total sleep time (hours + 15 min latency) from wake date to get bedtime
+      const totalMins = hrs * 60 + FALL_ASLEEP_MINS;
+      const bedDate = addMinutes(wakeDate, -totalMins);
+
+      bedtimeInput.value = formatHHMM(bedDate);
+      calculateSleep();
+    }
+
+    // --- Main Rendering Routine ---
+    function calculateSleep() {
+      if (!validateInputs()) return;
+
+      const mode = calcModeSelect.value;
+      let sleepDate, wakeDate, totalMinutes;
+
+      if (mode === 'hours') {
+        const [bh, bm] = bedtimeInput.value.split(':').map(Number);
+        const [wh, wm] = wakeupInput.value.split(':').map(Number);
+
+        sleepDate = new Date();
+        sleepDate.setHours(bh, bm, 0, 0);
+
+        wakeDate = new Date();
+        wakeDate.setHours(wh, wm, 0, 0);
+
+        if (wakeDate <= sleepDate) {
+          wakeDate.setDate(wakeDate.getDate() + 1);
+        }
+
+        const diffMs = wakeDate - sleepDate;
+        totalMinutes = Math.max(0, (diffMs / (1000 * 60)) - FALL_ASLEEP_MINS);
+      } else {
+        const [h, m] = timeInput.value.split(':').map(Number);
+        const refDate = new Date();
+        refDate.setHours(h, m, 0, 0);
+
+        if (mode === 'wakeup') {
+          wakeDate = refDate;
+          sleepDate = addMinutes(wakeDate, -(5 * CYCLE_MINS + FALL_ASLEEP_MINS));
+          totalMinutes = 5 * CYCLE_MINS;
+        } else {
+          sleepDate = refDate;
+          wakeDate = addMinutes(sleepDate, 5 * CYCLE_MINS + FALL_ASLEEP_MINS);
+          totalMinutes = 5 * CYCLE_MINS;
+        }
+      }
+
+      // Calculations for Ideal (5 cycles) & Minimum (4 cycles) schedules
+      let idealSleep, idealWake, lowerSleep, lowerWake;
+
+      if (mode === 'wakeup') {
+        idealWake = wakeDate;
+        idealSleep = addMinutes(wakeDate, -(5 * CYCLE_MINS + FALL_ASLEEP_MINS));
+
+        lowerWake = wakeDate;
+        lowerSleep = addMinutes(wakeDate, -(4 * CYCLE_MINS + FALL_ASLEEP_MINS));
+      } else {
+        idealSleep = sleepDate;
+        idealWake = addMinutes(sleepDate, 5 * CYCLE_MINS + FALL_ASLEEP_MINS);
+
+        lowerSleep = sleepDate;
+        lowerWake = addMinutes(sleepDate, 4 * CYCLE_MINS + FALL_ASLEEP_MINS);
+      }
+
+      const totalHours = (totalMinutes / 60).toFixed(1);
+      const cycles = (totalMinutes / CYCLE_MINS).toFixed(1);
+
+      // Render Outputs
+      sleepTimeOutput.textContent = formatAMPM(sleepDate);
+      wakeupTimeOutput.textContent = formatAMPM(wakeDate);
+      durationCyclesOutput.textContent = `${totalHours} hrs (${cycles} cycles)`;
+
+      idealOutput.textContent = mode === 'wakeup' 
+        ? `${formatAMPM(idealSleep)} sleep (7.5 hrs)`
+        : `${formatAMPM(idealWake)} wake (7.5 hrs)`;
+
+      lowerOutput.textContent = mode === 'wakeup'
+        ? `${formatAMPM(lowerSleep)} sleep (6.0 hrs)`
+        : `${formatAMPM(lowerWake)} wake (6.0 hrs)`;
+    }
+
+    // Dynamic Listeners
+    calcModeSelect.addEventListener('change', handleModeChange);
+    timeInput.addEventListener('input', calculateSleep);
+
+    // Multi-input bidirectional listeners
+    hoursInput.addEventListener('input', updateFromHours);
+    bedtimeInput.addEventListener('input', updateFromBedtime);
+    wakeupInput.addEventListener('input', updateFromWakeup);
+
+    // Initial Load
+    handleModeChange();
+  </script>
+</body>
+</html>
