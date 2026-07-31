@@ -92,7 +92,7 @@ td:first-child{
 <label>Average Pace</label>
 <input id="pace" type="text" value="05:00">
 
-<label>Split <span id="splitLabel">Even</span></label>
+<label>Split <span id="splitLabel">(Even)</span></label>
 <div class="slider-wrap">
 <input id="splitSlider" type="range" min="0" max="100" value="50">
 </div>
@@ -118,7 +118,7 @@ td:first-child{
 </table>
 
 <div class="note">
-50 = Even Split • Left = Positive Split • Right = Negative Split • Maximum adjustment = ±20%
+50 = Even Split • Left = Positive Split • Right = Negative Split • Maximum adjustment = ±10%
 </div>
 
 </div>
@@ -181,7 +181,7 @@ function getSplit(){
 
     // maps 0-100 to +20% to -20%
 
-    return (50-slider.value)/50*20;
+    return (50-slider.value)/50*10;
 }
 
 function updateSplitText(){
@@ -191,11 +191,11 @@ function updateSplitText(){
     splitPercent.value=p.toFixed(1)+"%";
 
     if(Math.abs(p)<0.01){
-        splitLabel.textContent="Even";
+        splitLabel.textContent="(Even)";
     }else if(p>0){
-        splitLabel.textContent="Positive";
+        splitLabel.textContent="(Positive)";
     }else{
-        splitLabel.textContent="Negative";
+        splitLabel.textContent="(Negative)";
     }
 
 }
