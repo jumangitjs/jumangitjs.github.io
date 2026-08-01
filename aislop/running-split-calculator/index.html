@@ -264,6 +264,112 @@ th:first-child, td:first-child {
     line-height: 1.4;
     text-align: center;
 }
+
+/* Range Calculation Section Styling */
+.range-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+    user-select: none;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    min-height: 0;
+}
+
+.slider-toggle {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.slider-toggle:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+input:checked + .slider-toggle {
+    background-color: var(--primary);
+}
+
+input:checked + .slider-toggle:before {
+    transform: translateX(20px);
+}
+
+.range-controls {
+    display: none;
+    margin-top: 16px;
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.range-controls.active {
+    display: block;
+}
+
+.range-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.range-summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.summary-value {
+    font-weight: 700;
+    color: var(--primary);
+}
 </style>
 </head>
 
@@ -350,6 +456,41 @@ th:first-child, td:first-child {
 
     </div>
 
+    <!-- Range Average Section at Bottom -->
+    <div class="range-section">
+        <label class="toggle-label" for="rangeToggle">
+            <span>I want to see the average split from Lap X to Y</span>
+            <span class="switch">
+                <input type="checkbox" id="rangeToggle">
+                <span class="slider-toggle"></span>
+            </span>
+        </label>
+
+        <div id="rangeControls" class="range-controls">
+            <div class="range-grid">
+                <div class="field">
+                    <label for="startLap">Start Lap</label>
+                    <select id="startLap"></select>
+                </div>
+                <div class="field">
+                    <label for="endLap">End Lap</label>
+                    <select id="endLap"></select>
+                </div>
+            </div>
+
+            <div class="range-summary-card">
+                <div class="summary-row">
+                    <span>Selected Range:</span>
+                    <span id="displayLapRange" class="summary-value">Lap 1 to 1</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total Average Lap Pace:</span>
+                    <span id="displayAvgPace" class="summary-value">00:00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -363,6 +504,15 @@ const splitPercent = document.getElementById("splitPercent");
 const splitLabel = document.getElementById("splitLabel");
 const tbody = document.getElementById("tableBody");
 
+// Range Elements
+const rangeToggle = document.getElementById("rangeToggle");
+const rangeControls = document.getElementById("rangeControls");
+const startLapSelect = document.getElementById("startLap");
+const endLapSelect = document.getElementById("endLap");
+const displayLapRange = document.getElementById("displayLapRange");
+const displayAvgPace = document.getElementById("displayAvgPace");
+
+let calculatedLaps = [];
 let updating = false;
 
 // Regex patterns for simple validation
@@ -470,10 +620,55 @@ function updateFromPace() {
     calculate();
 }
 
+function populateLapDropdowns(totalLaps) {
+    const prevStart = parseInt(startLapSelect.value) || 1;
+    const prevEnd = parseInt(endLapSelect.value) || totalLaps;
+
+    startLapSelect.innerHTML = "";
+    endLapSelect.innerHTML = "";
+
+    for (let i = 1; i <= totalLaps; i++) {
+        const startOpt = document.createElement("option");
+        startOpt.value = i;
+        startOpt.textContent = `Lap ${i}`;
+        startLapSelect.appendChild(startOpt);
+
+        const endOpt = document.createElement("option");
+        endOpt.value = i;
+        endOpt.textContent = `Lap ${i}`;
+        endLapSelect.appendChild(endOpt);
+    }
+
+    startLapSelect.value = Math.min(prevStart, totalLaps);
+    endLapSelect.value = Math.min(Math.max(prevEnd, startLapSelect.value), totalLaps);
+}
+
+function updateRangeAverage() {
+    if (!rangeToggle.checked || calculatedLaps.length === 0) return;
+
+    let start = parseInt(startLapSelect.value) || 1;
+    let end = parseInt(endLapSelect.value) || calculatedLaps.length;
+
+    // Force end lap to be at least equal to start lap
+    if (end < start) {
+        end = start;
+        endLapSelect.value = end;
+    }
+
+    // Filter lap times in selected range
+    const selectedLaps = calculatedLaps.slice(start - 1, end);
+    const sumPaceSec = selectedLaps.reduce((acc, lap) => acc + lap.lapTime, 0);
+    const avgPaceSec = selectedLaps.length > 0 ? sumPaceSec / selectedLaps.length : 0;
+
+    displayLapRange.textContent = `Lap ${start} to Lap ${end}`;
+    displayAvgPace.textContent = formatPace(avgPaceSec);
+}
+
 function calculate() {
     updateSplitText();
 
     tbody.innerHTML = "";
+    calculatedLaps = [];
 
     let dist = parseFloat(distance.value);
 
@@ -497,6 +692,8 @@ function calculate() {
 
         cum += lapTime;
 
+        calculatedLaps.push({ lap: i, lapTime, cum });
+
         let row = document.createElement("tr");
         row.innerHTML = `
             <td>${i}</td>
@@ -506,7 +703,22 @@ function calculate() {
 
         tbody.appendChild(row);
     }
+
+    populateLapDropdowns(laps);
+    updateRangeAverage();
 }
+
+rangeToggle.addEventListener("change", () => {
+    if (rangeToggle.checked) {
+        rangeControls.classList.add("active");
+        updateRangeAverage();
+    } else {
+        rangeControls.classList.remove("active");
+    }
+});
+
+startLapSelect.addEventListener("change", updateRangeAverage);
+endLapSelect.addEventListener("change", updateRangeAverage);
 
 goal.addEventListener("input", updateFromGoal);
 pace.addEventListener("input", updateFromPace);
