@@ -20,7 +20,7 @@ jobs:
       - name: Generate Index File
         run: |
           # Set target directory (change 'my-folder' to your folder, or '.' if root)
-          TARGET_DIR="my-folder"
+          TARGET_DIR="aislop"
           
           cd "$TARGET_DIR"
           
