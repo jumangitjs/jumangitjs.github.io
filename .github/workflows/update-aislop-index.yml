@@ -3,9 +3,9 @@ name: update aislop index links
 on:
   push:
     branches:
-      - main  # Change to your default branch name if different
+      - master  # Change to your default branch name if different
     paths:
-      - '.'  # Replace 'my-folder' with your directory path (use '.' for root)
+      - 'aislop/**'  # Replace 'my-folder' with your directory path (use '.' for root)
 
 permissions:
   contents: write
