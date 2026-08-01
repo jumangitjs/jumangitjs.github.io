@@ -620,24 +620,27 @@ function updateFromPace() {
     calculate();
 }
 
-function populateLapDropdowns(totalLaps) {
+function populateLapDropdowns(lapsData) {
+    const totalLaps = lapsData.length;
     const prevStart = parseInt(startLapSelect.value) || 1;
     const prevEnd = parseInt(endLapSelect.value) || totalLaps;
 
     startLapSelect.innerHTML = "";
     endLapSelect.innerHTML = "";
 
-    for (let i = 1; i <= totalLaps; i++) {
+    lapsData.forEach(item => {
+        const paceStr = formatPace(item.lapTime);
+        
         const startOpt = document.createElement("option");
-        startOpt.value = i;
-        startOpt.textContent = `Lap ${i}`;
+        startOpt.value = item.lap;
+        startOpt.textContent = `Lap ${item.lap} (${paceStr})`;
         startLapSelect.appendChild(startOpt);
 
         const endOpt = document.createElement("option");
-        endOpt.value = i;
-        endOpt.textContent = `Lap ${i}`;
+        endOpt.value = item.lap;
+        endOpt.textContent = `Lap ${item.lap} (${paceStr})`;
         endLapSelect.appendChild(endOpt);
-    }
+    });
 
     startLapSelect.value = Math.min(prevStart, totalLaps);
     endLapSelect.value = Math.min(Math.max(prevEnd, startLapSelect.value), totalLaps);
@@ -704,7 +707,7 @@ function calculate() {
         tbody.appendChild(row);
     }
 
-    populateLapDropdowns(laps);
+    populateLapDropdowns(calculatedLaps);
     updateRangeAverage();
 }
 
