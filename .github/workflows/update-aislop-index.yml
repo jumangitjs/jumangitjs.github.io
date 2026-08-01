@@ -5,7 +5,7 @@ on:
     branches:
       - main  # Change to your default branch name if different
     paths:
-      - 'aislop/**'  # Replace 'my-folder' with your directory path (use '.' for root)
+      - '.'  # Replace 'my-folder' with your directory path (use '.' for root)
 
 permissions:
   contents: write
