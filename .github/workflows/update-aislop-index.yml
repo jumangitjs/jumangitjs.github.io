@@ -1,0 +1,69 @@
+name: Update Index Links
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch name if different
+    paths:
+      - 'aislop/**'  # Replace 'my-folder' with your directory path (use '.' for root)
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Index File
+        run: |
+          # Set target directory (change 'my-folder' to your folder, or '.' if root)
+          TARGET_DIR="my-folder"
+          
+          cd "$TARGET_DIR"
+          
+          # Start writing the index.html file
+          cat << 'EOF' > index.html
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Directory Index</title>
+              <style>
+                  body { font-family: system-ui, sans-serif; padding: 2rem; max-width: 600px; margin: auto; }
+                  h1 { border-bottom: 2px solid #eaeaea; padding-bottom: 0.5rem; }
+                  ul { list-style-type: none; padding: 0; }
+                  li { margin: 0.5rem 0; }
+                  a { color: #0066cc; text-decoration: none; font-size: 1.1rem; }
+                  a:hover { text-decoration: underline; }
+              </style>
+          </head>
+          <body>
+              <h1>Project Directory Index</h1>
+              <ul>
+          EOF
+
+          # Find all index.html files in subdirectories (excluding root index.html)
+          find . -mindepth 2 -name "index.html" | sort | while read -r filepath; do
+              # Clean relative path (e.g., ./subfolder/index.html -> subfolder/index.html)
+              clean_path="${filepath#./}"
+              folder_name="$(dirname "$clean_path")"
+              
+              echo "                <li><a href=\"$clean_path\">$folder_name</a></li>" >> index.html
+          done
+
+          # Close HTML tags
+          cat << 'EOF' >> index.html
+              </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update index.html route directory [skip ci]"
+          file_pattern: '**/index.html'
