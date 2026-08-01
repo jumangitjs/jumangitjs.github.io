@@ -10,6 +10,8 @@
       --card-bg: #1e293b;
       --accent-color: #38bdf8;
       --accent-subtle: #818cf8;
+      --warning-color: #fbbf24;
+      --danger-color: #f87171;
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
       --error-color: #f87171;
@@ -38,7 +40,7 @@
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
     }
 
     h1 {
@@ -116,6 +118,93 @@
       color: var(--accent-subtle);
     }
 
+    /* Toggle Switch Styling */
+    .toggle-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px dashed #334155;
+    }
+
+    .toggle-label-text {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #334155;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--danger-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Breakdown List */
+    .unhealthy-panel {
+      display: none;
+      margin-top: 1rem;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+    }
+
+    .unhealthy-panel.visible {
+      display: block;
+    }
+
+    .cycle-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+      font-size: 0.825rem;
+      border-bottom: 1px solid #1e293b;
+    }
+
+    .cycle-item:last-child {
+      border-bottom: none;
+    }
+
+    .badge-danger { color: var(--danger-color); font-weight: 600; }
+    .badge-warning { color: var(--warning-color); font-weight: 600; }
+
     .note {
       font-size: 0.75rem;
       color: var(--text-sub);
@@ -139,13 +228,13 @@
       </select>
     </div>
 
-    <!-- Single Input Container (Used for Wake Up / Bedtime Modes) -->
+    <!-- Single Input Container -->
     <div id="single-input-container" class="form-group">
       <label id="input-label" for="time-input">Target Time</label>
       <input type="time" id="time-input" />
     </div>
 
-    <!-- Multi Input Container (Used for "Hours of Sleep" Mode) -->
+    <!-- Multi Input Container -->
     <div id="hours-mode-container" class="form-group" style="display: none;">
       <div class="form-group">
         <label for="hours-input">Hours of Sleep</label>
@@ -186,6 +275,35 @@
         <span class="result-label">Min Schedule (4 Cycles):</span>
         <span id="lower-output" class="result-value subtle">--</span>
       </div>
+
+      <!-- Toggle Controls -->
+      <div class="toggle-container">
+        <span class="toggle-label-text">See Unhealthy Sleep Cycles</span>
+        <label class="switch">
+          <input type="checkbox" id="unhealthy-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Unhealthy Sleep Breakdown Panel -->
+      <div id="unhealthy-panel" class="unhealthy-panel">
+        <div class="cycle-item">
+          <span>1 Cycle (1.5 hrs sleep):</span>
+          <span id="cycle-1" class="badge-danger">--</span>
+        </div>
+        <div class="cycle-item">
+          <span>2 Cycles (3.0 hrs sleep):</span>
+          <span id="cycle-2" class="badge-danger">--</span>
+        </div>
+        <div class="cycle-item">
+          <span>3 Cycles (4.5 hrs sleep):</span>
+          <span id="cycle-3" class="badge-warning">--</span>
+        </div>
+        <div class="cycle-item">
+          <span>4 Cycles (6.0 hrs sleep):</span>
+          <span id="cycle-4" class="badge-warning">--</span>
+        </div>
+      </div>
     </div>
 
     <p class="note">Includes 15 minutes to fall asleep and standard 90-minute REM sleep cycles.</p>
@@ -206,6 +324,8 @@
     const wakeupInput = document.getElementById('wakeup-input');
     
     const errorMessage = document.getElementById('error-message');
+    const unhealthyToggle = document.getElementById('unhealthy-toggle');
+    const unhealthyPanel = document.getElementById('unhealthy-panel');
 
     // Outputs
     const sleepTimeOutput = document.getElementById('sleep-time-output');
@@ -213,6 +333,12 @@
     const durationCyclesOutput = document.getElementById('duration-cycles-output');
     const idealOutput = document.getElementById('ideal-output');
     const lowerOutput = document.getElementById('lower-output');
+
+    // Cycle breakdown outputs
+    const cycle1Out = document.getElementById('cycle-1');
+    const cycle2Out = document.getElementById('cycle-2');
+    const cycle3Out = document.getElementById('cycle-3');
+    const cycle4Out = document.getElementById('cycle-4');
 
     const FALL_ASLEEP_MINS = 15;
     const CYCLE_MINS = 90;
@@ -241,6 +367,15 @@
       return new Date(date.getTime() + minutes * 60000);
     }
 
+    // Toggle Handler
+    unhealthyToggle.addEventListener('change', () => {
+      if (unhealthyToggle.checked) {
+        unhealthyPanel.classList.add('visible');
+      } else {
+        unhealthyPanel.classList.remove('visible');
+      }
+    });
+
     // Handle switching between calculation modes
     function handleModeChange() {
       const mode = calcModeSelect.value;
@@ -248,7 +383,7 @@
       if (mode === 'hours') {
         singleContainer.style.display = 'none';
         hoursContainer.style.display = 'block';
-        updateFromHours(); // Sync initially
+        updateFromHours();
       } else {
         singleContainer.style.display = 'block';
         hoursContainer.style.display = 'none';
@@ -294,15 +429,17 @@
       durationCyclesOutput.textContent = '--';
       idealOutput.textContent = '--';
       lowerOutput.textContent = '--';
+      cycle1Out.textContent = '--';
+      cycle2Out.textContent = '--';
+      cycle3Out.textContent = '--';
+      cycle4Out.textContent = '--';
     }
 
     function hideError() {
       errorMessage.style.display = 'none';
     }
 
-    // --- Dynamic Time Recalculations for "Hours of Sleep" Mode ---
-
-    // 1. When Hours change -> recalculate Wake Up time based on Bedtime
+    // --- Dynamic Time Recalculations ---
     function updateFromHours() {
       const hrs = parseFloat(hoursInput.value);
       if (isNaN(hrs) || !bedtimeInput.value) return;
@@ -318,7 +455,6 @@
       calculateSleep();
     }
 
-    // 2. When Bedtime changes -> recalculate Wake Up time based on Hours
     function updateFromBedtime() {
       const hrs = parseFloat(hoursInput.value);
       if (isNaN(hrs) || !bedtimeInput.value) return;
@@ -334,7 +470,6 @@
       calculateSleep();
     }
 
-    // 3. When Wake Up time changes -> recalculate Bedtime based on Hours of Sleep (Keeping Hours Fixed)
     function updateFromWakeup() {
       const hrs = parseFloat(hoursInput.value);
       if (isNaN(hrs) || !wakeupInput.value) return;
@@ -343,7 +478,6 @@
       const wakeDate = new Date();
       wakeDate.setHours(wh, wm, 0, 0);
 
-      // Subtract total sleep time (hours + 15 min latency) from wake date to get bedtime
       const totalMins = hrs * 60 + FALL_ASLEEP_MINS;
       const bedDate = addMinutes(wakeDate, -totalMins);
 
@@ -390,7 +524,7 @@
         }
       }
 
-      // Calculations for Ideal (5 cycles) & Minimum (4 cycles) schedules
+      // Ideal (5 cycles) & Lower (4 cycles) baseline
       let idealSleep, idealWake, lowerSleep, lowerWake;
 
       if (mode === 'wakeup') {
@@ -410,7 +544,7 @@
       const totalHours = (totalMinutes / 60).toFixed(1);
       const cycles = (totalMinutes / CYCLE_MINS).toFixed(1);
 
-      // Render Outputs
+      // Render Primary Outputs
       sleepTimeOutput.textContent = formatAMPM(sleepDate);
       wakeupTimeOutput.textContent = formatAMPM(wakeDate);
       durationCyclesOutput.textContent = `${totalHours} hrs (${cycles} cycles)`;
@@ -422,6 +556,19 @@
       lowerOutput.textContent = mode === 'wakeup'
         ? `${formatAMPM(lowerSleep)} sleep (6.0 hrs)`
         : `${formatAMPM(lowerWake)} wake (6.0 hrs)`;
+
+      // Render Unhealthy / Lower Sleep Cycles Breakdown (Cycles 1-4)
+      if (mode === 'wakeup') {
+        // Compute required Bedtimes for a fixed Wake-up Time
+        cycle1Out.textContent = `${formatAMPM(addMinutes(wakeDate, -(1 * CYCLE_MINS + FALL_ASLEEP_MINS)))} bedtime`;
+        cycle2Out.textContent = `${formatAMPM(addMinutes(wakeDate, -(2 * CYCLE_MINS + FALL_ASLEEP_MINS)))} bedtime`;
+        cycle3Out.textContent = `${formatAMPM(addMinutes(wakeDate, -(3 * CYCLE_MINS + FALL_ASLEEP_MINS)))} bedtime`;
+      } else {
+        // Compute resulting Wake-up Times for a fixed Bedtime
+        cycle1Out.textContent = `${formatAMPM(addMinutes(sleepDate, 1 * CYCLE_MINS + FALL_ASLEEP_MINS))} wake`;
+        cycle2Out.textContent = `${formatAMPM(addMinutes(sleepDate, 2 * CYCLE_MINS + FALL_ASLEEP_MINS))} wake`;
+        cycle3Out.textContent = `${formatAMPM(addMinutes(sleepDate, 3 * CYCLE_MINS + FALL_ASLEEP_MINS))} wake`;
+      }
     }
 
     // Dynamic Listeners
