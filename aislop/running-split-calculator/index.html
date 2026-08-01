@@ -484,6 +484,10 @@ input:checked + .slider-toggle:before {
                     <span id="displayLapRange" class="summary-value">Lap 1 to 1</span>
                 </div>
                 <div class="summary-row">
+                    <span>Interval Distance:</span>
+                    <span id="displayIntervalDistance" class="summary-value">1 km</span>
+                </div>
+                <div class="summary-row">
                     <span>Total Average Lap Pace:</span>
                     <span id="displayAvgPace" class="summary-value">00:00</span>
                 </div>
@@ -510,6 +514,7 @@ const rangeControls = document.getElementById("rangeControls");
 const startLapSelect = document.getElementById("startLap");
 const endLapSelect = document.getElementById("endLap");
 const displayLapRange = document.getElementById("displayLapRange");
+const displayIntervalDistance = document.getElementById("displayIntervalDistance");
 const displayAvgPace = document.getElementById("displayAvgPace");
 
 let calculatedLaps = [];
@@ -663,7 +668,18 @@ function updateRangeAverage() {
     const sumPaceSec = selectedLaps.reduce((acc, lap) => acc + lap.lapTime, 0);
     const avgPaceSec = selectedLaps.length > 0 ? sumPaceSec / selectedLaps.length : 0;
 
+    // Calculate interval distance based on lap count and full distance ratio
+    const totalDist = parseFloat(distance.value) || 0;
+    const totalLaps = calculatedLaps.length;
+    
+    // Each full lap covers (totalDist / totalLaps)
+    let intervalDist = (selectedLaps.length / totalLaps) * totalDist;
+    
+    // Formatting unit display
+    const unitLabel = unit.value === "metric" ? "km" : "mi";
+
     displayLapRange.textContent = `Lap ${start} to Lap ${end}`;
+    displayIntervalDistance.textContent = `${intervalDist.toFixed(2)} ${unitLabel}`;
     displayAvgPace.textContent = formatPace(avgPaceSec);
 }
 
