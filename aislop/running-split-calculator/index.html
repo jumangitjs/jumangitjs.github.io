@@ -1,376 +1,400 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Running Split Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Running Split Calculator</title>
 
-<style>
-:root {
-    --primary: #2563eb;
-    --primary-hover: #1d4ed8;
-    --bg-main: #f8fafc;
-    --card-bg: #ffffff;
-    --text-main: #0f172a;
-    --text-muted: #64748b;
-    --border: #cbd5e1;
-    --error: #ef4444;
-    --radius: 12px;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-}
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --error: #ef4444;
+            --gel-color: #d97706;
+            --gel-bg: #fef3c7;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+        }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-body {
-    background-color: var(--bg-main);
-    color: var(--text-main);
-    padding: 16px;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-}
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 16px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
 
-.container {
-    width: 100%;
-    max-width: 640px;
-    background: var(--card-bg);
-    padding: 24px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border);
-    margin-top: 12px;
-    margin-bottom: 24px;
-}
+        .container {
+            width: 100%;
+            max-width: 640px;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            margin-top: 12px;
+            margin-bottom: 24px;
+        }
 
-.header {
-    margin-bottom: 24px;
-    text-align: center;
-}
+        .header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
 
-h1 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--text-main);
-}
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+        }
 
-p.subtitle {
-    font-size: 0.875rem;
-    color: var(--text-muted);
-    margin-top: 4px;
-}
+        p.subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-}
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
 
-@media (min-width: 480px) {
-    .form-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    .full-width {
-        grid-column: span 2;
-    }
-}
+        @media (min-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
 
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-main);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.label-badge {
-    font-weight: 500;
-    color: var(--primary);
-}
+        .label-badge {
+            font-weight: 500;
+            color: var(--primary);
+        }
 
-input, select {
-    width: 100%;
-    min-height: 48px;
-    padding: 10px 14px;
-    font-size: 1.05rem;
-    line-height: 1.2;
-    color: var(--text-main);
-    background-color: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: all 0.2s ease;
-    outline: none;
-    appearance: none;
-    -webkit-appearance: none;
-}
+        input, select {
+            width: 100%;
+            min-height: 48px;
+            padding: 10px 14px;
+            font-size: 1.05rem;
+            line-height: 1.2;
+            color: var(--text-main);
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
 
-select {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2064748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 16px;
-    padding-right: 36px;
-}
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2064748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 36px;
+        }
 
-input:focus, select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
 
-input.invalid {
-    border-color: var(--error);
-}
+        input.invalid {
+            border-color: var(--error);
+        }
 
-input.invalid:focus {
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
-}
+        input.invalid:focus {
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+        }
 
-.error-text {
-    font-size: 0.75rem;
-    color: var(--error);
-    display: none;
-}
+        .error-text {
+            font-size: 0.75rem;
+            color: var(--error);
+            display: none;
+        }
 
-input.invalid + .error-text {
-    display: block;
-}
+        input.invalid + .error-text {
+            display: block;
+        }
 
-input[readonly] {
-    background-color: #f1f5f9;
-    color: var(--text-muted);
-    cursor: not-allowed;
-}
+        input[readonly] {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
 
-/* Custom Slider Styling */
-.slider-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px 0;
-}
+        /* Custom Slider Styling */
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px 0;
+        }
 
-input[type=range] {
-    min-height: auto;
-    height: 6px;
-    background: #e2e8f0;
-    border-radius: 3px;
-    border: none;
-    padding: 0;
-}
+        input[type=range] {
+            min-height: auto;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            border: none;
+            padding: 0;
+        }
 
-input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--primary);
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    transition: transform 0.1s ease;
-}
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+        }
 
-input[type=range]::-webkit-slider-thumb:active {
-    transform: scale(1.15);
-}
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.15);
+        }
 
-.slider-legend {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    font-weight: 500;
-}
+        .slider-legend {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
 
-/* Output Section */
-.output {
-    margin-top: 32px;
-    border-top: 1px solid var(--border);
-    padding-top: 20px;
-}
+        /* Output Section */
+        .output {
+            margin-top: 32px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
 
-.output-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-}
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
 
-h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-}
+        h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
 
-.table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-}
+        .table-wrap {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    text-align: right;
-    font-size: 0.95rem;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            text-align: right;
+            font-size: 0.95rem;
+        }
 
-th, td {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-}
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
 
-th {
-    background-color: #f8fafc;
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
-tr:last-child td {
-    border-bottom: none;
-}
+        tr:last-child td {
+            border-bottom: none;
+        }
 
-tr:nth-child(even) {
-    background-color: #f8fafc;
-}
+        tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
 
-th:first-child, td:first-child {
-    text-align: left;
-    font-weight: 600;
-}
+        th:first-child, td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
 
-.note {
-    margin-top: 12px;
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    line-height: 1.4;
-    text-align: center;
-}
+        /* Highlight Gel Laps */
+        tr.gel-highlight {
+            background-color: var(--gel-bg) !important;
+        }
 
-/* Range Calculation Section Styling */
-.range-section {
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-}
+        .gel-badge {
+            display: inline-block;
+            background-color: var(--gel-color);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
-.toggle-label {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-main);
-    user-select: none;
-}
+        .note {
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            line-height: 1.4;
+            text-align: center;
+        }
 
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-}
+        /* Range Calculation & Gel Section Styling */
+        .range-section {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
 
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    min-height: 0;
-}
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            user-select: none;
+        }
 
-.slider-toggle {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #cbd5e1;
-    transition: .3s;
-    border-radius: 24px;
-}
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
 
-.slider-toggle:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .3s;
-    border-radius: 50%;
-}
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            min-height: 0;
+        }
 
-input:checked + .slider-toggle {
-    background-color: var(--primary);
-}
+        .slider-toggle {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s;
+            border-radius: 24px;
+        }
 
-input:checked + .slider-toggle:before {
-    transform: translateX(20px);
-}
+        .slider-toggle:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
 
-.range-controls {
-    display: none;
-    margin-top: 16px;
-    background: #f8fafc;
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-}
+        input:checked + .slider-toggle {
+            background-color: var(--primary);
+        }
 
-.range-controls.active {
-    display: block;
-}
+        input:checked + .slider-toggle:before {
+            transform: translateX(20px);
+        }
 
-.range-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
-}
+        .range-controls {
+            display: none;
+            margin-top: 16px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
 
-.range-summary-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+        .range-controls.active {
+            display: block;
+        }
 
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-}
+        .range-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
 
-.summary-value {
-    font-weight: 700;
-    color: var(--primary);
-}
-</style>
+        .range-summary-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .summary-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .gel-value {
+            color: var(--gel-color);
+        }
+    </style>
 </head>
 
 <body>
@@ -456,7 +480,7 @@ input:checked + .slider-toggle:before {
 
     </div>
 
-    <!-- Range Average Section at Bottom -->
+    <!-- Range Average Section -->
     <div class="range-section">
         <label class="toggle-label" for="rangeToggle">
             <span>I want to see the average split from Lap X to Y</span>
@@ -495,258 +519,370 @@ input:checked + .slider-toggle:before {
         </div>
     </div>
 
+    <!-- Gel Computation Section -->
+    <div class="range-section">
+        <label class="toggle-label" for="gelToggle">
+            <span>Display computation for my gels</span>
+            <span class="switch">
+                <input type="checkbox" id="gelToggle">
+                <span class="slider-toggle"></span>
+            </span>
+        </label>
+
+        <div id="gelControls" class="range-controls">
+            <div class="range-grid">
+                <div class="field">
+                    <label for="gelStrategy">Frequency Strategy</label>
+                    <select id="gelStrategy">
+                        <option value="distance">Per Distance</option>
+                        <option value="time">Time Interval</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="gelIntervalVal" id="gelIntervalLabel">Frequency (Every X km)</label>
+                    <input id="gelIntervalVal" type="text" value="5">
+                    <span class="error-text">Enter number or time (MM:SS)</span>
+                </div>
+            </div>
+
+            <div class="range-summary-card">
+                <div class="summary-row">
+                    <span>Total Gels Required:</span>
+                    <span id="displayGelCount" class="summary-value gel-value">0 Gels</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
+    const unit = document.getElementById("unit");
+    const distance = document.getElementById("distance");
+    const goal = document.getElementById("goal");
+    const pace = document.getElementById("pace");
+    const slider = document.getElementById("splitSlider");
+    const splitPercent = document.getElementById("splitPercent");
+    const splitLabel = document.getElementById("splitLabel");
+    const tbody = document.getElementById("tableBody");
 
-const unit = document.getElementById("unit");
-const distance = document.getElementById("distance");
-const goal = document.getElementById("goal");
-const pace = document.getElementById("pace");
-const slider = document.getElementById("splitSlider");
-const splitPercent = document.getElementById("splitPercent");
-const splitLabel = document.getElementById("splitLabel");
-const tbody = document.getElementById("tableBody");
+    // Range Elements
+    const rangeToggle = document.getElementById("rangeToggle");
+    const rangeControls = document.getElementById("rangeControls");
+    const startLapSelect = document.getElementById("startLap");
+    const endLapSelect = document.getElementById("endLap");
+    const displayLapRange = document.getElementById("displayLapRange");
+    const displayIntervalDistance = document.getElementById("displayIntervalDistance");
+    const displayAvgPace = document.getElementById("displayAvgPace");
 
-// Range Elements
-const rangeToggle = document.getElementById("rangeToggle");
-const rangeControls = document.getElementById("rangeControls");
-const startLapSelect = document.getElementById("startLap");
-const endLapSelect = document.getElementById("endLap");
-const displayLapRange = document.getElementById("displayLapRange");
-const displayIntervalDistance = document.getElementById("displayIntervalDistance");
-const displayAvgPace = document.getElementById("displayAvgPace");
+    // Gel Elements
+    const gelToggle = document.getElementById("gelToggle");
+    const gelControls = document.getElementById("gelControls");
+    const gelStrategy = document.getElementById("gelStrategy");
+    const gelIntervalVal = document.getElementById("gelIntervalVal");
+    const gelIntervalLabel = document.getElementById("gelIntervalLabel");
+    const displayGelCount = document.getElementById("displayGelCount");
 
-let calculatedLaps = [];
-let updating = false;
+    let calculatedLaps = [];
+    let updating = false;
 
-// Regex patterns for simple validation
-const goalRegex = /^(\d{1,2}:)?([0-5]?\d):([0-5]\d)$/; // HH:MM:SS or MM:SS
-const paceRegex = /^([0-5]?\d):([0-5]\d)$/;             // MM:SS
+    // Regex patterns
+    const goalRegex = /^(\d{1,2}:)?([0-5]?\d):([0-5]\d)$/; // HH:MM:SS or MM:SS
+    const paceRegex = /^([0-5]?\d):([0-5]\d)$/;             // MM:SS
 
-function validateInput(element, regex) {
-    const isValid = regex.test(element.value.trim());
-    if (isValid || element.value.trim() === "") {
-        element.classList.remove("invalid");
-        return true;
-    } else {
-        element.classList.add("invalid");
-        return false;
-    }
-}
-
-function parseTime(str) {
-    let p = str.split(":").map(Number);
-
-    if (p.length === 2) {
-        return (p[0] || 0) * 60 + (p[1] || 0);
-    }
-
-    if (p.length === 3) {
-        return (p[0] || 0) * 3600 + (p[1] || 0) * 60 + (p[2] || 0);
+    function validateInput(element, regex) {
+        const isValid = regex.test(element.value.trim());
+        if (isValid || element.value.trim() === "") {
+            element.classList.remove("invalid");
+            return true;
+        } else {
+            element.classList.add("invalid");
+            return false;
+        }
     }
 
-    return 0;
-}
+    function parseTime(str) {
+        let p = str.split(":").map(Number);
 
-function formatHMS(sec) {
-    sec = Math.round(sec);
+        if (p.length === 2) {
+            return (p[0] || 0) * 60 + (p[1] || 0);
+        }
 
-    let h = Math.floor(sec / 3600);
-    let m = Math.floor((sec % 3600) / 60);
-    let s = sec % 60;
+        if (p.length === 3) {
+            return (p[0] || 0) * 3600 + (p[1] || 0) * 60 + (p[2] || 0);
+        }
 
-    return (
-        String(h).padStart(2, "0") + ":" +
-        String(m).padStart(2, "0") + ":" +
-        String(s).padStart(2, "0")
-    );
-}
-
-function formatPace(sec) {
-    sec = Math.round(sec);
-
-    let m = Math.floor(sec / 60);
-    let s = sec % 60;
-
-    return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
-}
-
-function getSplit() {
-    return (50 - slider.value) / 50 * 10;
-}
-
-function updateSplitText() {
-    let p = getSplit();
-
-    splitPercent.value = p.toFixed(1) + "%";
-
-    if (Math.abs(p) < 0.01) {
-        splitLabel.textContent = "(Even)";
-    } else if (p > 0) {
-        splitLabel.textContent = "(Positive Split)";
-    } else {
-        splitLabel.textContent = "(Negative Split)";
+        return 0;
     }
-}
 
-function updateFromGoal() {
-    if (updating) return;
+    function formatHMS(sec) {
+        sec = Math.round(sec);
 
-    if (!validateInput(goal, goalRegex)) return;
-    pace.classList.remove("invalid");
+        let h = Math.floor(sec / 3600);
+        let m = Math.floor((sec % 3600) / 60);
+        let s = sec % 60;
 
-    updating = true;
+        return (
+            String(h).padStart(2, "0") + ":" +
+            String(m).padStart(2, "0") + ":" +
+            String(s).padStart(2, "0")
+        );
+    }
 
-    let dist = parseFloat(distance.value) || 0;
-    let total = parseTime(goal.value);
-    let avg = dist > 0 ? total / dist : 0;
+    function formatPace(sec) {
+        sec = Math.round(sec);
 
-    pace.value = formatPace(avg);
+        let m = Math.floor(sec / 60);
+        let s = sec % 60;
 
-    updating = false;
-    calculate();
-}
+        return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }
 
-function updateFromPace() {
-    if (updating) return;
+    function getSplit() {
+        return (50 - slider.value) / 50 * 10;
+    }
 
-    if (!validateInput(pace, paceRegex)) return;
-    goal.classList.remove("invalid");
+    function updateSplitText() {
+        let p = getSplit();
 
-    updating = true;
+        splitPercent.value = p.toFixed(1) + "%";
 
-    let dist = parseFloat(distance.value) || 0;
-    let sec = parseTime(pace.value);
+        if (Math.abs(p) < 0.01) {
+            splitLabel.textContent = "(Even)";
+        } else if (p > 0) {
+            splitLabel.textContent = "(Positive Split)";
+        } else {
+            splitLabel.textContent = "(Negative Split)";
+        }
+    }
 
-    goal.value = formatHMS(sec * dist);
+    function updateFromGoal() {
+        if (updating) return;
 
-    updating = false;
-    calculate();
-}
+        if (!validateInput(goal, goalRegex)) return;
+        pace.classList.remove("invalid");
 
-function populateLapDropdowns(lapsData) {
-    const totalLaps = lapsData.length;
-    const prevStart = parseInt(startLapSelect.value) || 1;
-    const prevEnd = parseInt(endLapSelect.value) || totalLaps;
+        updating = true;
 
-    startLapSelect.innerHTML = "";
-    endLapSelect.innerHTML = "";
+        let dist = parseFloat(distance.value) || 0;
+        let total = parseTime(goal.value);
+        let avg = dist > 0 ? total / dist : 0;
 
-    lapsData.forEach(item => {
-        const paceStr = formatPace(item.lapTime);
+        pace.value = formatPace(avg);
+
+        updating = false;
+        calculate();
+    }
+
+    function updateFromPace() {
+        if (updating) return;
+
+        if (!validateInput(pace, paceRegex)) return;
+        goal.classList.remove("invalid");
+
+        updating = true;
+
+        let dist = parseFloat(distance.value) || 0;
+        let sec = parseTime(pace.value);
+
+        goal.value = formatHMS(sec * dist);
+
+        updating = false;
+        calculate();
+    }
+
+    function populateLapDropdowns(lapsData) {
+        const totalLaps = lapsData.length;
+        const prevStart = parseInt(startLapSelect.value) || 1;
+        const prevEnd = parseInt(endLapSelect.value) || totalLaps;
+
+        startLapSelect.innerHTML = "";
+        endLapSelect.innerHTML = "";
+
+        lapsData.forEach(item => {
+            const paceStr = formatPace(item.lapTime);
+            
+            const startOpt = document.createElement("option");
+            startOpt.value = item.lap;
+            startOpt.textContent = `Lap ${item.lap} (${paceStr})`;
+            startLapSelect.appendChild(startOpt);
+
+            const endOpt = document.createElement("option");
+            endOpt.value = item.lap;
+            endOpt.textContent = `Lap ${item.lap} (${paceStr})`;
+            endLapSelect.appendChild(endOpt);
+        });
+
+        startLapSelect.value = Math.min(prevStart, totalLaps);
+        endLapSelect.value = Math.min(Math.max(prevEnd, startLapSelect.value), totalLaps);
+    }
+
+    function updateRangeAverage() {
+        if (!rangeToggle.checked || calculatedLaps.length === 0) return;
+
+        let start = parseInt(startLapSelect.value) || 1;
+        let end = parseInt(endLapSelect.value) || calculatedLaps.length;
+
+        if (end < start) {
+            end = start;
+            endLapSelect.value = end;
+        }
+
+        const selectedLaps = calculatedLaps.slice(start - 1, end);
+        const sumPaceSec = selectedLaps.reduce((acc, lap) => acc + lap.lapTime, 0);
+        const avgPaceSec = selectedLaps.length > 0 ? sumPaceSec / selectedLaps.length : 0;
+
+        const totalDist = parseFloat(distance.value) || 0;
+        const totalLaps = calculatedLaps.length;
         
-        const startOpt = document.createElement("option");
-        startOpt.value = item.lap;
-        startOpt.textContent = `Lap ${item.lap} (${paceStr})`;
-        startLapSelect.appendChild(startOpt);
+        let intervalDist = (selectedLaps.length / totalLaps) * totalDist;
+        const unitLabel = unit.value === "metric" ? "km" : "mi";
 
-        const endOpt = document.createElement("option");
-        endOpt.value = item.lap;
-        endOpt.textContent = `Lap ${item.lap} (${paceStr})`;
-        endLapSelect.appendChild(endOpt);
+        displayLapRange.textContent = `Lap ${start} to Lap ${end}`;
+        displayIntervalDistance.textContent = `${intervalDist.toFixed(2)} ${unitLabel}`;
+        displayAvgPace.textContent = formatPace(avgPaceSec);
+    }
+
+    // Gel Calculation and Table Highlighting
+    function getGelLaps() {
+        if (!gelToggle.checked || calculatedLaps.length === 0) return [];
+
+        const isDistance = gelStrategy.value === "distance";
+        const val = gelIntervalVal.value.trim();
+        const gelLaps = [];
+
+        if (isDistance) {
+            const distInterval = parseFloat(val);
+            if (!distInterval || distInterval <= 0) return [];
+
+            const unitRatio = (parseFloat(distance.value) || 0) / calculatedLaps.length;
+            
+            calculatedLaps.forEach(lap => {
+                const currentDist = lap.lap * unitRatio;
+                // Check if this lap crosses a gel distance threshold
+                if (currentDist < (parseFloat(distance.value) || 0) && Math.floor(currentDist / distInterval) > Math.floor((currentDist - unitRatio) / distInterval)) {
+                    gelLaps.push(lap.lap);
+                }
+            });
+        } else {
+            const timeIntervalSec = parseTime(val);
+            if (!timeIntervalSec || timeIntervalSec <= 0) return [];
+
+            let lastGelTime = 0;
+            calculatedLaps.forEach(lap => {
+                if (lap.cum < parseTime(goal.value) && lap.cum >= lastGelTime + timeIntervalSec) {
+                    gelLaps.push(lap.lap);
+                    lastGelTime = lap.cum;
+                }
+            });
+        }
+
+        return gelLaps;
+    }
+
+    function calculate() {
+        updateSplitText();
+
+        tbody.innerHTML = "";
+        calculatedLaps = [];
+
+        let dist = parseFloat(distance.value);
+
+        if (!dist || dist <= 0) return;
+
+        let avg = parseTime(pace.value);
+        let split = getSplit() / 100;
+        let laps = Math.round(dist);
+
+        if (laps < 1) laps = 1;
+
+        let firstFactor = 1 - split;
+        let secondFactor = 1 + split;
+
+        let cum = 0;
+
+        for (let i = 1; i <= laps; i++) {
+            let ratio = laps > 1 ? (i - 1) / (laps - 1) : 0;
+            let factor = firstFactor + (secondFactor - firstFactor) * ratio;
+            let lapTime = avg * factor;
+
+            cum += lapTime;
+
+            calculatedLaps.push({ lap: i, lapTime, cum });
+        }
+
+        const gelLaps = getGelLaps();
+        displayGelCount.textContent = `${gelLaps.length} Gel${gelLaps.length === 1 ? '' : 's'}`;
+
+        calculatedLaps.forEach(item => {
+            let row = document.createElement("tr");
+            const isGelLap = gelLaps.includes(item.lap);
+            
+            if (isGelLap) {
+                row.classList.add("gel-highlight");
+            }
+
+            row.innerHTML = `
+                <td>
+                    ${item.lap}
+                    ${isGelLap ? '<span class="gel-badge">🧃 Gel</span>' : ''}
+                </td>
+                <td>${formatPace(item.lapTime)}</td>
+                <td>${formatHMS(item.cum)}</td>
+            `;
+
+            tbody.appendChild(row);
+        });
+
+        populateLapDropdowns(calculatedLaps);
+        updateRangeAverage();
+    }
+
+    // Event Listeners for Gel Functionality
+    gelToggle.addEventListener("change", () => {
+        if (gelToggle.checked) {
+            gelControls.classList.add("active");
+        } else {
+            gelControls.classList.remove("active");
+        }
+        calculate();
     });
 
-    startLapSelect.value = Math.min(prevStart, totalLaps);
-    endLapSelect.value = Math.min(Math.max(prevEnd, startLapSelect.value), totalLaps);
-}
+    gelStrategy.addEventListener("change", () => {
+        const isDistance = gelStrategy.value === "distance";
+        const uLabel = unit.value === "metric" ? "km" : "mi";
+        gelIntervalLabel.textContent = isDistance ? `Frequency (Every X ${uLabel})` : "Frequency (MM:SS or HH:MM:SS)";
+        gelIntervalVal.value = isDistance ? "5" : "00:30:00";
+        calculate();
+    });
 
-function updateRangeAverage() {
-    if (!rangeToggle.checked || calculatedLaps.length === 0) return;
+    gelIntervalVal.addEventListener("input", calculate);
 
-    let start = parseInt(startLapSelect.value) || 1;
-    let end = parseInt(endLapSelect.value) || calculatedLaps.length;
+    rangeToggle.addEventListener("change", () => {
+        if (rangeToggle.checked) {
+            rangeControls.classList.add("active");
+            updateRangeAverage();
+        } else {
+            rangeControls.classList.remove("active");
+        }
+    });
 
-    // Force end lap to be at least equal to start lap
-    if (end < start) {
-        end = start;
-        endLapSelect.value = end;
-    }
+    startLapSelect.addEventListener("change", updateRangeAverage);
+    endLapSelect.addEventListener("change", updateRangeAverage);
 
-    // Filter lap times in selected range
-    const selectedLaps = calculatedLaps.slice(start - 1, end);
-    const sumPaceSec = selectedLaps.reduce((acc, lap) => acc + lap.lapTime, 0);
-    const avgPaceSec = selectedLaps.length > 0 ? sumPaceSec / selectedLaps.length : 0;
+    goal.addEventListener("input", updateFromGoal);
+    pace.addEventListener("input", updateFromPace);
+    distance.addEventListener("input", updateFromGoal);
+    slider.addEventListener("input", calculate);
+    unit.addEventListener("change", () => {
+        if (gelStrategy.value === "distance") {
+            const uLabel = unit.value === "metric" ? "km" : "mi";
+            gelIntervalLabel.textContent = `Frequency (Every X ${uLabel})`;
+        }
+        calculate();
+    });
 
-    // Calculate interval distance based on lap count and full distance ratio
-    const totalDist = parseFloat(distance.value) || 0;
-    const totalLaps = calculatedLaps.length;
-    
-    // Each full lap covers (totalDist / totalLaps)
-    let intervalDist = (selectedLaps.length / totalLaps) * totalDist;
-    
-    // Formatting unit display
-    const unitLabel = unit.value === "metric" ? "km" : "mi";
-
-    displayLapRange.textContent = `Lap ${start} to Lap ${end}`;
-    displayIntervalDistance.textContent = `${intervalDist.toFixed(2)} ${unitLabel}`;
-    displayAvgPace.textContent = formatPace(avgPaceSec);
-}
-
-function calculate() {
-    updateSplitText();
-
-    tbody.innerHTML = "";
-    calculatedLaps = [];
-
-    let dist = parseFloat(distance.value);
-
-    if (!dist || dist <= 0) return;
-
-    let avg = parseTime(pace.value);
-    let split = getSplit() / 100;
-    let laps = Math.round(dist);
-
-    if (laps < 1) laps = 1;
-
-    let firstFactor = 1 - split;
-    let secondFactor = 1 + split;
-
-    let cum = 0;
-
-    for (let i = 1; i <= laps; i++) {
-        let ratio = laps > 1 ? (i - 1) / (laps - 1) : 0;
-        let factor = firstFactor + (secondFactor - firstFactor) * ratio;
-        let lapTime = avg * factor;
-
-        cum += lapTime;
-
-        calculatedLaps.push({ lap: i, lapTime, cum });
-
-        let row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${i}</td>
-            <td>${formatPace(lapTime)}</td>
-            <td>${formatHMS(cum)}</td>
-        `;
-
-        tbody.appendChild(row);
-    }
-
-    populateLapDropdowns(calculatedLaps);
-    updateRangeAverage();
-}
-
-rangeToggle.addEventListener("change", () => {
-    if (rangeToggle.checked) {
-        rangeControls.classList.add("active");
-        updateRangeAverage();
-    } else {
-        rangeControls.classList.remove("active");
-    }
-});
-
-startLapSelect.addEventListener("change", updateRangeAverage);
-endLapSelect.addEventListener("change", updateRangeAverage);
-
-goal.addEventListener("input", updateFromGoal);
-pace.addEventListener("input", updateFromPace);
-distance.addEventListener("input", updateFromGoal);
-slider.addEventListener("input", calculate);
-unit.addEventListener("change", calculate);
-
-updateFromPace();
-
+    updateFromPace();
 </script>
 
 </body>
