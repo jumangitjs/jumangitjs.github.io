@@ -13,7 +13,8 @@
     --card-bg: #ffffff;
     --text-main: #0f172a;
     --text-muted: #64748b;
-    --border: #e2e8f0;
+    --border: #cbd5e1;
+    --error: #ef4444;
     --radius: 12px;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
     --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
@@ -72,7 +73,7 @@ p.subtitle {
     gap: 16px;
 }
 
-@media (min-width: 520px) {
+@media (min-width: 480px) {
     .form-grid {
         grid-template-columns: 1fr 1fr;
     }
@@ -103,20 +104,49 @@ label {
 
 input, select {
     width: 100%;
-    height: 44px;
-    padding: 0 12px;
-    font-size: 1rem;
+    min-height: 48px;
+    padding: 10px 14px;
+    font-size: 1.05rem;
+    line-height: 1.2;
     color: var(--text-main);
     background-color: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
     transition: all 0.2s ease;
     outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2064748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 36px;
 }
 
 input:focus, select:focus {
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+input.invalid {
+    border-color: var(--error);
+}
+
+input.invalid:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.error-text {
+    font-size: 0.75rem;
+    color: var(--error);
+    display: none;
+}
+
+input.invalid + .error-text {
+    display: block;
 }
 
 input[readonly] {
@@ -134,13 +164,10 @@ input[readonly] {
 }
 
 input[type=range] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
+    min-height: auto;
     height: 6px;
     background: #e2e8f0;
     border-radius: 3px;
-    outline: none;
     border: none;
     padding: 0;
 }
@@ -222,7 +249,7 @@ tr:last-child td {
 }
 
 tr:nth-child(even) {
-    background-color: #f8fafc/50;
+    background-color: #f8fafc;
 }
 
 th:first-child, td:first-child {
@@ -266,12 +293,14 @@ th:first-child, td:first-child {
 
         <div class="field">
             <label for="goal">Target Goal Time</label>
-            <input id="goal" type="text" value="00:50:00" placeholder="HH:MM:SS" inputmode="numeric">
+            <input id="goal" type="text" value="00:50:00" placeholder="HH:MM:SS or MM:SS">
+            <span class="error-text">Format as HH:MM:SS or MM:SS</span>
         </div>
 
         <div class="field">
             <label for="pace">Average Pace</label>
-            <input id="pace" type="text" value="05:00" placeholder="MM:SS" inputmode="numeric">
+            <input id="pace" type="text" value="05:00" placeholder="MM:SS">
+            <span class="error-text">Format as MM:SS</span>
         </div>
 
         <div class="field full-width">
@@ -336,6 +365,21 @@ const tbody = document.getElementById("tableBody");
 
 let updating = false;
 
+// Regex patterns for simple validation
+const goalRegex = /^(\d{1,2}:)?([0-5]?\d):([0-5]\d)$/; // HH:MM:SS or MM:SS
+const paceRegex = /^([0-5]?\d):([0-5]\d)$/;             // MM:SS
+
+function validateInput(element, regex) {
+    const isValid = regex.test(element.value.trim());
+    if (isValid || element.value.trim() === "") {
+        element.classList.remove("invalid");
+        return true;
+    } else {
+        element.classList.add("invalid");
+        return false;
+    }
+}
+
 function parseTime(str) {
     let p = str.split(":").map(Number);
 
@@ -374,7 +418,6 @@ function formatPace(sec) {
 }
 
 function getSplit() {
-    // Maps 0-100 to +10% to -10%
     return (50 - slider.value) / 50 * 10;
 }
 
@@ -394,6 +437,10 @@ function updateSplitText() {
 
 function updateFromGoal() {
     if (updating) return;
+
+    if (!validateInput(goal, goalRegex)) return;
+    pace.classList.remove("invalid");
+
     updating = true;
 
     let dist = parseFloat(distance.value) || 0;
@@ -408,6 +455,10 @@ function updateFromGoal() {
 
 function updateFromPace() {
     if (updating) return;
+
+    if (!validateInput(pace, paceRegex)) return;
+    goal.classList.remove("invalid");
+
     updating = true;
 
     let dist = parseFloat(distance.value) || 0;
