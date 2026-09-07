@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Splitter</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f9;
+            padding: 20px;
+            color: #333;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 780px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        textarea,
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .btn-add-row {
+            background: #059669;
+            width: 100%;
+            margin-top: 10px;
+            justify-content: center;
+            padding: 10px 16px;
+        }
+
+        .btn-add-row:hover {
+            background: #047857;
+        }
+
+        .btn-edit {
+            background: #f59e0b;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-edit:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-cancel {
+            background: #94a3b8;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-cancel:hover {
+            background: #64748b;
+        }
+
+        .btn-save {
+            background: #10b981;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .currency-selector {
+            width: auto;
+            margin-bottom: 0;
+            font-weight: 600;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+
+        /* Drag & Drop Import Zone Styling */
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone:hover {
+            border-color: #94a3b8;
+            background: #f1f5f9;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #2563eb;
+            background: #eff6ff;
+            transform: scale(1.01);
+        }
+
+        .drop-zone p {
+            margin: 0;
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 500;
+            pointer-events: none;
+        }
+
+        .drop-zone .browse-btn {
+            color: #2563eb;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        /* Accordion Styling */
+        details.card-accordion {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        details.card-accordion[open] {
+            border-color: #2563eb;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+        }
+
+        summary.card-header {
+            padding: 14px 18px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        summary.card-header:hover {
+            background: #f1f5f9;
+        }
+
+        .card-body {
+            padding: 18px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Form & Expense Table Styling */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0 12px;
+        }
+
+        .checkbox-group label {
+            font-size: 12px;
+            font-weight: normal;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid #cbd5e1;
+        }
+
+        table.expense-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        table.expense-table th,
+        table.expense-table td {
+            text-align: left;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        table.expense-table th {
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .editing-row-box {
+            background: #fefce8;
+            padding: 10px;
+            border: 1px dashed #f59e0b;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        /* Summary Boxes */
+        .summary-box {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+        }
+
+        .settlement-item {
+            background: #fffbebf5;
+            padding: 12px 16px;
+            border-left: 4px solid #f59e0b;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header-row">
+            <h1>Group Bill Splitter</h1>
+            <div class="toolbar">
+                <select id="currency-select" class="currency-selector" onchange="changeCurrency(this.value)"
+                    title="Select Currency">
+                    <option value="$">$ (USD/CAD/AUD)</option>
+                    <option value="€">€ (EUR)</option>
+                    <option value="£">£ (GBP)</option>
+                    <option value="¥">¥ (JPY/CNY)</option>
+                    <option value="₱">₱ (PHP)</option>
+                    <option value="₹">₹ (INR)</option>
+                </select>
+                <button class="btn-secondary" onclick="exportJSON()">📥 Export JSON</button>
+            </div>
+        </div>
+
+        <!-- DRAG & DROP IMPORT ZONE -->
+        <div class="drop-zone" id="drop-zone" onclick="document.getElementById('import-file').click()">
+            <p>📤 Drag & Drop a saved <strong>.json</strong> file here, or <span class="browse-btn">browse</span></p>
+            <input type="file" id="import-file" accept=".json" onchange="handleFileSelect(event)"
+                style="display: none;">
+        </div>
+
+        <!-- STEP 1: Participants Setup -->
+        <div class="section">
+            <h2>1. Group Participants</h2>
+            <label for="names-input" style="display:block; margin: 10px 0 6px; font-weight:500;">Enter names (separated
+                by commas or lines):</label>
+            <textarea id="names-input" rows="3" placeholder="Alice, Bob, Charlie"></textarea>
+            <button onclick="setParticipants()">Set Participants</button>
+        </div>
+
+        <!-- STEP 2: Accordion Expense Cards Per Name -->
+        <div class="section" id="expense-section" style="display: none;">
+            <h2>2. Add Expenses Per Participant</h2>
+            <div id="accordion-container" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- STEP 3: Totals & Dues Breakdown -->
+        <div class="section" id="dashboard-section" style="display: none;">
+            <h2>3. Financial Breakdown</h2>
+
+            <h3>Total Spent Per Person</h3>
+            <div id="totals-container" style="margin-top: 10px;"></div>
+
+            <h3 style="margin-top: 20px;">Individual Dues (Who Owes Whom)</h3>
+            <div id="settlements-container" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <script>
+        let participants = [];
+        let expenses = []; // Structure: { id, paidBy, description, amount, splitAmong }
+        let currentCurrency = '$';
+        let editingExpenseId = null;
+        let openAccordionIndices = new Set([0]); // Track open accordion states
+
+        function changeCurrency(newCurrency) {
+            currentCurrency = newCurrency;
+            renderAccordions();
+            updateDashboard();
+        }
+
+        function setParticipants() {
+            const input = document.getElementById('names-input').value;
+            participants = input.split(/,|\n/).map(n => n.trim()).filter(n => n !== "");
+
+            if (participants.length < 2) {
+                alert("Please enter at least two participants.");
+                return;
+            }
+
+            expenses = []; // Reset expenses on new setup
+            editingExpenseId = null;
+            openAccordionIndices = new Set([0]); // Default to opening first participant card
+
+            renderAccordions();
+            document.getElementById('expense-section').style.display = 'block';
+            document.getElementById('dashboard-section').style.display = 'block';
+            updateDashboard();
+        }
+
+        function renderAccordions() {
+            const container = document.getElementById('accordion-container');
+
+            // Preserve current open accordion states from existing DOM before re-rendering
+            const existingDetails = container.querySelectorAll('details.card-accordion');
+            if (existingDetails.length > 0) {
+                openAccordionIndices.clear();
+                existingDetails.forEach((details, idx) => {
+                    if (details.open) {
+                        openAccordionIndices.add(idx);
+                    }
+                });
+            }
+
+            container.innerHTML = '';
+
+            participants.forEach((name, index) => {
+                const personExpenses = expenses.filter(e => e.paidBy === name);
+                const personTotal = personExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+                // Generate split checkboxes for adding a new row
+                const newRowCheckboxesHtml = participants.map(p => `
+                <label>
+                    <input type="checkbox" value="${p}" class="cb-new-${index}" checked>
+                    ${p}
+                </label>
+            `).join('');
+
+                // Generate table rows (or inline edit row)
+                let tableRowsHtml = personExpenses.map(e => {
+                    if (editingExpenseId === e.id) {
+                        // Render In-line Edit Mode
+                        const editCheckboxes = participants.map(p => `
+                        <label>
+                            <input type="checkbox" value="${p}" class="cb-edit-${e.id}" ${e.splitAmong.includes(p) ? 'checked' : ''}>
+                            ${p}
+                        </label>
+                    `).join('');
+
+                        return `
+                        <tr>
+                            <td colspan="4">
+                                <div class="editing-row-box">
+                                    <strong style="font-size: 13px; display:block; margin-bottom: 6px;">Editing Expense:</strong>
+                                    <input type="text" id="edit-desc-${e.id}" value="${e.description}" placeholder="Description">
+                                    <input type="number" id="edit-amount-${e.id}" value="${e.amount}" placeholder="Amount" step="any" onkeydown="if(event.key==='Enter'){event.preventDefault(); saveExpenseEdit(${e.id});}">
+                                    <label style="font-size: 11px; font-weight:600; color:#64748b;">Share with:</label>
+                                    <div class="checkbox-group">
+                                        ${editCheckboxes}
+                                    </div>
+                                    <div style="display:flex; gap:6px; justify-content:flex-end;">
+                                        <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
+                                        <button class="btn-save" onclick="saveExpenseEdit(${e.id})">Save Changes</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    } else {
+                        // Normal Row Display
+                        return `
+                        <tr>
+                            <td>${e.description}</td>
+                            <td>${currentCurrency}${e.amount.toFixed(2)}</td>
+                            <td><small>${e.splitAmong.join(', ')}</small></td>
+                            <td style="white-space: nowrap;">
+                                <button class="btn-edit" onclick="startEditExpense(${e.id})" title="Edit Row">✏️</button>
+                                <button class="btn-danger" onclick="deleteExpense(${e.id})" title="Delete Row">✕</button>
+                            </td>
+                        </tr>
+                    `;
+                    }
+                }).join('');
+
+                const card = document.createElement('details');
+                card.className = 'card-accordion';
+
+                // Keep card open if it was previously open or if an expense inside it is currently being edited
+                if (openAccordionIndices.has(index) || personExpenses.some(e => e.id === editingExpenseId)) {
+                    card.open = true;
+                }
+
+                card.innerHTML = `
+                <summary class="card-header">
+                    <span>${name}</span>
+                    <span style="color: #2563eb;">Total Paid: ${currentCurrency}${personTotal.toFixed(2)}</span>
+                </summary>
+                <div class="card-body">
+                    ${personExpenses.length > 0 ? `
+                        <table class="expense-table">
+                            <thead>
+                                <tr><th>Description</th><th>Amount</th><th>Shared With</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>${tableRowsHtml}</tbody>
+                        </table>
+                    ` : '<p style="color: #64748b; font-size: 13px; margin-top:0;">No expense rows added yet.</p>'}
+
+                    <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px dashed #cbd5e1;">
+                        <strong style="font-size: 13px; display:block; margin-bottom: 8px;">Add New Expense Row for ${name}:</strong>
+                        <input type="text" id="desc-${index}" placeholder="Expense description (e.g., Dinner)" onkeydown="if(event.key==='Enter'){event.preventDefault(); document.getElementById('amount-${index}').focus();}">
+                        <input type="number" id="amount-${index}" placeholder="Amount (${currentCurrency})" step="any" onkeydown="if(event.key==='Enter'){event.preventDefault(); addExpenseRowAndFocus('${name}', ${index});}">
+                        
+                        <label style="font-size: 12px; font-weight: 600; color: #475569;">Share expense with:</label>
+                        <div class="checkbox-group">
+                            ${newRowCheckboxesHtml}
+                        </div>
+
+                        <button class="btn-add-row" onclick="addExpenseRowAndFocus('${name}', ${index})">+ Add Expense Row</button>
+                    </div>
+                </div>
+            `;
+                container.appendChild(card);
+            });
+        }
+
+        function addExpenseRow(payerName, personIndex) {
+            const descInput = document.getElementById(`desc-${personIndex}`);
+            const amountInput = document.getElementById(`amount-${personIndex}`);
+            const desc = descInput.value.trim() || "Expense";
+            const amount = parseFloat(amountInput.value);
+
+            const checkedBoxes = document.querySelectorAll(`.cb-new-${personIndex}:checked`);
+            const splitAmong = Array.from(checkedBoxes).map(cb => cb.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount.");
+                return false;
+            }
+            if (splitAmong.length === 0) {
+                alert("Select at least one participant to share this expense.");
+                return false;
+            }
+
+            // Explicitly keep this participant's accordion open
+            openAccordionIndices.add(personIndex);
+
+            expenses.push({
+                id: Date.now() + Math.floor(Math.random() * 10000),
+                paidBy: payerName,
+                description: desc,
+                amount: amount,
+                splitAmong: splitAmong
+            });
+
+            renderAccordions();
+            updateDashboard();
+            return true;
+        }
+
+        // Helper function to add the row and reset focus to the description input
+        function addExpenseRowAndFocus(payerName, personIndex) {
+            const success = addExpenseRow(payerName, personIndex);
+            if (success) {
+                const nextDescInput = document.getElementById(`desc-${personIndex}`);
+                if (nextDescInput) {
+                    nextDescInput.focus();
+                }
+            }
+        }
+
+        function startEditExpense(id) {
+            editingExpenseId = id;
+            renderAccordions();
+        }
+
+        function cancelEdit() {
+            editingExpenseId = null;
+            renderAccordions();
+        }
+
+        function saveExpenseEdit(id) {
+            const desc = document.getElementById(`edit-desc-${id}`).value.trim() || "Expense";
+            const amount = parseFloat(document.getElementById(`edit-amount-${id}`).value);
+
+            const checkedBoxes = document.querySelectorAll(`.cb-edit-${id}:checked`);
+            const splitAmong = Array.from(checkedBoxes).map(cb => cb.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount.");
+                return;
+            }
+            if (splitAmong.length === 0) {
+                alert("Select at least one participant to share this expense.");
+                return;
+            }
+
+            const expIndex = expenses.findIndex(e => e.id === id);
+            if (expIndex !== -1) {
+                expenses[expIndex].description = desc;
+                expenses[expIndex].amount = amount;
+                expenses[expIndex].splitAmong = splitAmong;
+            }
+
+            editingExpenseId = null;
+            renderAccordions();
+            updateDashboard();
+        }
+
+        function deleteExpense(id) {
+            if (!confirm("Are you sure you want to delete this expense?")) {
+                return;
+            }
+            if (editingExpenseId === id) editingExpenseId = null;
+            expenses = expenses.filter(e => e.id !== id);
+            renderAccordions();
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            let totalSpend = {};
+            let balances = {};
+
+            participants.forEach(p => {
+                totalSpend[p] = 0;
+                balances[p] = 0;
+            });
+
+            expenses.forEach(exp => {
+                totalSpend[exp.paidBy] += exp.amount;
+                balances[exp.paidBy] += exp.amount;
+
+                const splitCost = exp.amount / exp.splitAmong.length;
+                exp.splitAmong.forEach(person => {
+                    balances[person] -= splitCost;
+                });
+            });
+
+            // Render Total Spend
+            const totalsContainer = document.getElementById('totals-container');
+            totalsContainer.innerHTML = '';
+            participants.forEach(p => {
+                totalsContainer.innerHTML += `
+                <div class="summary-box">
+                    <span>${p}</span>
+                    <span>${currentCurrency}${totalSpend[p].toFixed(2)}</span>
+                </div>`;
+            });
+
+            // Compute Greedy Settlements
+            let debtors = [];
+            let creditors = [];
+
+            for (let p in balances) {
+                if (balances[p] < -0.01) debtors.push({ name: p, amount: Math.abs(balances[p]) });
+                if (balances[p] > 0.01) creditors.push({ name: p, amount: balances[p] });
+            }
+
+            const settlementsContainer = document.getElementById('settlements-container');
+            settlementsContainer.innerHTML = '';
+
+            if (debtors.length === 0 && creditors.length === 0) {
+                settlementsContainer.innerHTML = '<p style="color: #059669; font-weight: 500;">All expenses balanced equally!</p>';
+                return;
+            }
+
+            let i = 0, j = 0;
+            while (i < debtors.length && j < creditors.length) {
+                let debtor = debtors[i];
+                let creditor = creditors[j];
+                let settleAmount = Math.min(debtor.amount, creditor.amount);
+
+                settlementsContainer.innerHTML += `
+                <div class="settlement-item">
+                    <strong>${debtor.name}</strong> owes <strong>${creditor.name}</strong> <span>${currentCurrency}${settleAmount.toFixed(2)}</span>
+                </div>
+            `;
+
+                debtor.amount -= settleAmount;
+                creditor.amount -= settleAmount;
+
+                if (debtor.amount < 0.01) i++;
+                if (creditor.amount < 0.01) j++;
+            }
+        }
+
+        // EXPORT JSON FUNCTIONALITY
+        function exportJSON() {
+            if (participants.length === 0) {
+                alert("No data available to export. Please add participants first.");
+                return;
+            }
+
+            const data = {
+                currency: currentCurrency,
+                participants: participants,
+                expenses: expenses,
+                exportedAt: new Date().toISOString()
+            };
+
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `bill-split-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // DRAG & DROP & FILE READ HANDLERS
+        const dropZone = document.getElementById('drop-zone');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            window.addEventListener(eventName, e => e.preventDefault(), false);
+            dropZone.addEventListener(eventName, e => e.preventDefault(), false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('drag-over'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('drag-over'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                processJSONFile(files[0]);
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processJSONFile(file);
+            }
+        }
+
+        function processJSONFile(file) {
+            if (!file.name.endsWith('.json')) {
+                alert('Please select or drop a valid .json file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    if (!data.participants || !Array.isArray(data.participants) || !data.expenses || !Array.isArray(data.expenses)) {
+                        throw new Error("Invalid format. File must contain 'participants' and 'expenses' arrays.");
+                    }
+
+                    participants = data.participants;
+
+                    expenses = data.expenses.map(exp => ({
+                        ...exp,
+                        id: Math.floor(Number(exp.id)) || (Date.now() + Math.floor(Math.random() * 10000))
+                    }));
+
+                    if (data.currency) {
+                        currentCurrency = data.currency;
+                        document.getElementById('currency-select').value = currentCurrency;
+                    }
+
+                    editingExpenseId = null;
+                    openAccordionIndices = new Set([0]);
+
+                    document.getElementById('names-input').value = participants.join(', ');
+                    document.getElementById('expense-section').style.display = 'block';
+                    document.getElementById('dashboard-section').style.display = 'block';
+
+                    renderAccordions();
+                    updateDashboard();
+                    alert("Data successfully imported!");
+                } catch (err) {
+                    alert("Error reading JSON file: " + err.message);
+                }
+                document.getElementById('import-file').value = '';
+            };
+            reader.readAsText(file);
+        }
+    </script>
+
+</body>
+
+</html>
