@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Text Converter (with Clipboard Paste)</title>
+    <!-- Load Tesseract.js from CDN -->
+    <script src="tesseract.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .drop-zone {
+            border: 2px dashed #007bff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        input[type="file"] {
+            margin-bottom: 15px;
+        }
+        #preview {
+            max-width: 100%;
+            height: auto;
+            display: none;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .loading {
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Image to Text Converter</h2>
+        <div class="drop-zone">
+            <p><strong>Tip:</strong> Click anywhere on this page and press <strong>Ctrl+V (or Cmd+V)</strong> to paste an image from your clipboard!</p>
+        </div>
+        
+        <input type="file" id="imageInput" accept="image/*">
+        
+        <div>
+            <img id="preview" alt="Image Preview">
+        </div>
+
+        <div id="loadingStatus" class="loading">Processing image... Please wait.</div>
+
+        <h3>Extracted Text:</h3>
+        <textarea id="output" placeholder="Your extracted text will appear here..."></textarea>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+        const output = document.getElementById('output');
+        const loadingStatus = document.getElementById('loadingStatus');
+
+        // Handle file input selection
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) processImage(file);
+        });
+
+        // Handle clipboard paste event globally
+        window.addEventListener('paste', function (e) {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    processImage(file);
+                    break;
+                }
+            }
+        });
+
+        // Core function to handle preview and OCR processing
+        function processImage(file) {
+            // Display image preview
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                preview.src = event.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+
+            // Clear previous output and show loading
+            output.value = '';
+            loadingStatus.style.display = 'block';
+
+            // Run Tesseract OCR
+            Tesseract.recognize(
+                file,
+                'eng',
+                {
+                    logger: m => console.log(m)
+                }
+            ).then(({ data: { text } }) => {
+                output.value = text;
+                loadingStatus.style.display = 'none';
+            }).catch(err => {
+                console.error(err);
+                output.value = 'Error during OCR processing.';
+                loadingStatus.style.display = 'none';
+            });
+        }
+    </script>
+
+</body>
+</html>
